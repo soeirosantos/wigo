@@ -1,5 +1,6 @@
 package com.nytimes.dv.slack.extractor;
 
+import com.nytimes.dv.slack.extractor.entity.SlackMessage;
 import com.nytimes.dv.slack.extractor.entity.SlackResult;
 import com.nytimes.dv.slack.extractor.repository.Elasticsearch;
 import com.nytimes.dv.slack.extractor.service.SlackMessageRetriever;
@@ -41,7 +42,9 @@ public class SlackMessageExtractorApplication {
                         .parallel()
                         // you may add filters here for data clean-up or remove these filters
                         .filter(m -> m.getText().length() > 10)
+                        .filter(m -> !m.getText().contains("Reminder:"))
                         .filter(m -> !m.getText().matches("^:.*:$"))
+                        .map(SlackMessage::loadTags)
                         .collect(Collectors.toList())
                 );
                 log.info("Loading new batch - cursor: {}", result.getNextCursor());
