@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-@Document(indexName = "slack_messages_v15")
+@Document(indexName = "slack_messages_v1")
 public class SlackMessage {
 
     @Id
@@ -28,6 +28,8 @@ public class SlackMessage {
     private String type;
 
     private String user;
+
+    private SlackUserInfo userInfo;
 
     private String text;
 
@@ -46,6 +48,11 @@ public class SlackMessage {
                 .filter(StopWords::isNot)
                 .filter(w -> w.length() > 1)
                 .collect(Collectors.toList());
+        return this;
+    }
+
+    public SlackMessage withUserInfo(SlackUserInfo userInfo) {
+        this.userInfo = userInfo;
         return this;
     }
 }

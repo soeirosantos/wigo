@@ -9,7 +9,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class SlackResult {
+public class SlackMessageResult {
 
     private List<SlackMessage> messages;
 
@@ -21,6 +21,6 @@ public class SlackResult {
 
     @JsonIgnore
     public String getNextCursor() {
-        return metadata.getNextCursor();
+        return metadata != null ? metadata.getNextCursor() : "";
     }
 }

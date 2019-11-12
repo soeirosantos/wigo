@@ -1,10 +1,10 @@
 package com.nytimes.dv.slack.extractor.service;
 
-import com.nytimes.dv.slack.extractor.entity.SlackResult;
+import com.nytimes.dv.slack.extractor.entity.SlackMessageResult;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Objects;
 
-@Service
+@Component
 public class SlackMessageRetriever {
 
     private static final String SLACK_API_CONVERSATION_HISTORY = "/conversations.history";
@@ -28,12 +28,12 @@ public class SlackMessageRetriever {
         this.webClient = webClient;
     }
 
-    public SlackResult list(Integer fromDays) {
+    public SlackMessageResult list(Integer fromDays) {
         return list(null, fromDays);
     }
 
     @SneakyThrows
-    public SlackResult list(String cursor, Integer fromDays) {
+    public SlackMessageResult list(String cursor, Integer fromDays) {
 
         final WebClient.ResponseSpec res = webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -42,11 +42,12 @@ public class SlackMessageRetriever {
                         .queryParam("channel", slackChannel)
                         .queryParam("limit", "100")
                         .queryParam("cursor", cursor)
+                        .queryParam("inclusive", true)
                         .queryParam("oldest", LocalDateTime.now().minusDays(fromDays).toEpochSecond(ZoneOffset.UTC))
                         .build())
                 .retrieve();
 
-        final Mono<ResponseEntity<SlackResult>> responseEntityMono = res.toEntity(SlackResult.class);
+        final Mono<ResponseEntity<SlackMessageResult>> responseEntityMono = res.toEntity(SlackMessageResult.class);
         return Objects.requireNonNull(responseEntityMono.block()).getBody();
     }
 }
